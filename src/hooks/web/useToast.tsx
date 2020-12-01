@@ -8,7 +8,7 @@ const defaultOption = {
   position: "center", // center top bottom
   duration: "2000",
   wordWrap: false, // 是否换行
-  width: "auto",
+  width: "auto", // toast 宽度
 };
 let queue: any = [];
 const _Toast = Vue.component("Toast", {
