@@ -88,9 +88,8 @@
 
   import { isValidMobileS } from "@/utils/validateUtil";
 
-  import { useMessage } from "@/hooks/useMessage";
+  import { Toast } from "@/hooks/web/useToast";
 
-  const { Toast } = useMessage();
   let smsTimer: any = {};
 
   @Component({
@@ -130,7 +129,7 @@
       }
     }
     private handleCheckPolicy() {
-      (this.checkedPolicy as any).value = !(this.checkedPolicy as any).value;
+      this.checkedPolicy = !this.checkedPolicy;
     }
     private handleFocus() {
       this.styleVar["--space"] = "40px";

@@ -1,6 +1,6 @@
-import { useMessage } from "@/hooks/useMessage";
+import { Toast } from "@/hooks/web/useToast";
 // import { userStore } from '@/store/modules/user';
-const { Toast } = useMessage();
+// const { Toast } = useMessage();
 
 export function checkStatus(status: number, msg: string): void {
   switch (status) {

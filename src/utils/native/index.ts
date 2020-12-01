@@ -1,10 +1,8 @@
 import dsbridge from "dsbridge";
-import { useMessage } from "@/hooks/useMessage";
+import { Toast } from "@/hooks/web/useToast";
 import compareVersions from "compare-versions";
 
 import { NativeApiErrorInfo, SyncCalendarParams } from "./types";
-
-const { Toast } = useMessage();
 
 export interface INativeService {
   syncCalendar(params: SyncCalendarParams, onSuccess: () => void): void;

@@ -9,7 +9,7 @@ import { AxiosTransform } from "./axiosTransform";
 
 import { checkStatus } from "./checkStatus";
 
-import { useMessage } from "@/hooks/useMessage";
+import { Toast } from "@/hooks/web/useToast";
 
 import { RequestEnum, ResultEnum, ContentTypeEnum } from "@/enums/httpEnum";
 
@@ -17,8 +17,6 @@ import { isString } from "@/utils/is";
 import { deepMerge } from "@/utils";
 import { errorServiceReport } from "@/setup/error-handle/sentry";
 import { errorResult } from "./const";
-
-const { Toast } = useMessage();
 
 /**
  * @description: 数据处理，方便区分多种处理方式
