@@ -3,17 +3,17 @@ export const basicRoutes: Array<CustomRoute> = [
   {
     path: "/",
     name: "root",
-    redirect: "/patient/login",
+    redirect: "/userLogin",
   },
   {
-    path: "/patient/login",
-    name: "login",
-    component: () => import("@/views/patient/login.vue"),
+    path: "/userLogin",
+    name: "userLogin",
+    component: () => import("@/views/userLogin.vue"),
   },
   {
     path: "/404",
     name: "404",
-    component: () => import("@/views/patient/login.vue"),
+    component: () => import("@/views/userLogin.vue"),
   },
   // ! 404 配置 必须放置最后
   // { path: "**", redirect: "/404" },

@@ -94,11 +94,11 @@
   let smsTimer: any = {};
 
   @Component({
-    name: "App",
+    name: "UserLogin",
   })
-  export default class extends Vue {
+  export default class UserLogin extends Vue {
     private checkedPolicy = false; // 是否勾选协议
-    private isShowAd = false; // 是否展示 广告位
+    private isShowAd = true; // 是否展示 广告位
     private device = window.$device; // 设备
     private platform = window.$platform; // 平台
     private loginForm = {

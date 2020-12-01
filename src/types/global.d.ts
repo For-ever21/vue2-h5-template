@@ -67,3 +67,5 @@ declare interface PromiseFn<T = any, R = T> {
 declare type Nullable<T> = T | null;
 
 declare type TargetContext = "_self" | "_blank";
+
+declare module "aiwen-logger";

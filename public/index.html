@@ -34,6 +34,7 @@
     <!-- SEO -->
     <meta name="author" content="">
     <meta name="description" content="" />
+    <script type='text/javascript' src="<%= BASE_URL %>static/tingyun.js"></script>
     <!-- 使用CDN加速的CSS文件，配置在vue.config.js下 -->
     <% for (var i in htmlWebpackPlugin.options.cdn && htmlWebpackPlugin.options.cdn.css) { %>
       <link href="<%= htmlWebpackPlugin.options.cdn.css[i] %>" rel="preload" as="style">
