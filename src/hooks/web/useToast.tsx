@@ -58,6 +58,13 @@ function createInstance() {
   }
   return queue[queue.length - 1];
 }
+function removeDom(event: any) {
+  if (event.target.parentNode.childNodes.length > 1) {
+    event.target.parentNode.removeChild(event.target);
+  } else {
+    event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+  }
+}
 
 export function Toast(options: any) {
   if (typeof options === "string") {
@@ -79,12 +86,19 @@ export function Toast(options: any) {
   toastVM.wordWrap = options.wordWrap;
   toastVM.type = options.type;
   toastVM.show = true;
-
-  toastTimer = setTimeout(() => {
-    toastVM.show = toastTimer = false;
-  }, options.duration);
+  // 自动关闭
+  if (options.duration > 0) {
+    toastTimer = setTimeout(() => {
+      clearTimeout(toastTimer);
+      Toast.close(toastVM);
+      // toastVM.show = toastTimer = false;
+    }, options.duration);
+  }
 }
-
+Toast.close = function (toastVM: any) {
+  toastVM.show = false;
+  toastVM.$el.addEventListener("transitionend", removeDom);
+};
 Toast.install = function () {
   Vue.prototype.$toast = Toast;
 };
