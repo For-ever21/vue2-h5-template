@@ -1,0 +1,7 @@
+[defaults]
+url = https://sentry.io
+org = krystal
+project = vue3-h5-template
+
+[auth]
+token = 1cfadca719b2439ca9c1ef4a6d2d503e22c41f08aef44a9cb926681eb905ac78

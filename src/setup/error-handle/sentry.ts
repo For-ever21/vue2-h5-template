@@ -1,11 +1,12 @@
+import Vue from "vue";
 import * as Sentry from "@sentry/browser";
 import * as Integrations from "@sentry/integrations";
 import { ReportOptions, ServerApiErrorInfo } from "./types";
 export class Report {
   // 单例模式
-  public static getInstance(Vue: AnyObject, options: ReportOptions) {
+  public static getInstance(options: ReportOptions) {
     if (!this.instance) {
-      this.instance = new Report(Vue, options);
+      this.instance = new Report(options);
       this.instance.install();
       this.instance.registerGlobalError();
     }
@@ -14,11 +15,9 @@ export class Report {
 
   private static instance: Report;
 
-  public Vue: AnyObject;
   public options: ReportOptions;
 
-  constructor(Vue: AnyObject, options: ReportOptions) {
-    this.Vue = Vue;
+  constructor(options: ReportOptions) {
     this.options = options;
   }
 
@@ -28,7 +27,7 @@ export class Report {
       dsn: this.options.dsn, // 上报地址
       integrations: [
         new Integrations.Vue({
-          // Vue: this.Vue,
+          Vue,
           attachProps: true,
           logErrors: true, // false的话，sentry会屏蔽浏览器控制台报错信息
         }),

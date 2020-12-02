@@ -1,8 +1,12 @@
 const path = require("path");
 const CompressionWebpackPlugin = require("compression-webpack-plugin");
+const SentryPlugin = require('@sentry/webpack-plugin'); // sentry 上报 sourceMap
+
 
 const autoprefixer = require('autoprefixer');
 const pxtorem = require('postcss-pxtorem');
+
+const version = require('./package.json').version;
 
 function resolve(str) {
   return path.resolve(__dirname, str);
@@ -10,9 +14,11 @@ function resolve(str) {
 // 是否是生产环境
 const IS_PROD = process.env.NODE_ENV === "production";
 // 是否使用gzip
-const productionGzip = true
+const productionGzip = true;
 // 需要gzip压缩的文件后缀
-const productionGzipExtensions = ['js', 'css']
+const productionGzipExtensions = ['js', 'css'];
+// 是否使用 sentry 上报 sourceMap
+const productionSentry = true;
 
 module.exports = {
   publicPath: process.env.PublicPath, // 默认'/'，部署应用包时的基本 URL
@@ -20,7 +26,7 @@ module.exports = {
   assetsDir: process.env.AssetsDir || "static", // 相对于outputDir的静态资源(js、css、img、fonts)目录
   filenameHashing: true, // 生成的静态资源文件名是否使用哈希
   lintOnSave: false,
-  productionSourceMap: false, // 生产环境的 source map
+  productionSourceMap: true, // 生产环境的 source map
   integrity: true, // 构建后的文件是部署在 CDN，启用该选项可以提供额外的安全性。
   parallel: require("os").cpus().length > 1, // 在多核机器下会默认开启。
   css: {
@@ -130,6 +136,20 @@ module.exports = {
       //   'mqtt': 'mqtt',
       //   'echarts': 'echarts'
       // }
+      // 3. sentry 上报 sourceMap
+      productionSentry &&
+        myConfig.plugins.push(
+          new SentryPlugin({
+            // 发布的版本
+            release: version, 
+            // 需要上传到sentry服务器的资源目录,会自动匹配 js 以及 map 文件
+            include: path.join(__dirname, './dist/js'),
+            // 保持与publicPath相符
+            urlPrefix: `~/${process.env.PublicPath}/`,
+            //忽略文件目录, 当然我们在 inlcude 中制定了文件路径,这个忽略目录可以不加
+            ignore: ['node_modules']
+          })
+        )
     }
     return myConfig
   },

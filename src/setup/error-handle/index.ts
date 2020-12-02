@@ -2,7 +2,7 @@ import { Report } from "./sentry";
 export function setupErrorHandle(Vue: AnyObject) {
   const IS_DEV = process.env.NODE_ENV === "development";
   if (IS_DEV) {
-    const sentry = Report.getInstance(Vue, {
+    const sentry = Report.getInstance({
       dsn: process.env.SentryDSN,
       release: require("../../../package.json").version, // from webpack DefinePlugin
       environment: "Prod",
