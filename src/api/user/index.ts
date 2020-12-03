@@ -2,8 +2,13 @@ import { defHttp } from "@/utils/http";
 
 import {
   ISmsReqParams,
-  ISmsLoginReqParams,
-  ISmsLoginResultModel,
+  IPhoneLoginReqParams,
+  IPhoneLoginResultModel,
+  IWeiboLoginReqParams,
+  IWeiboLoginResultModel,
+  IWeixinLoginReqParams,
+  IWeixinLoginResultModel,
+  // IGenerateCodeReqParams,
   // IGenerateCodeUrlResultModel,
 } from "@/api/model/userModel";
 
@@ -12,18 +17,38 @@ import {
  */
 export function getSmsCode(params: ISmsReqParams) {
   return defHttp.request({
-    url: "/auth/phoneCheckNum",
-    method: "GET",
+    url: "/user/login/sendCheckNum",
+    method: "POST",
     params,
   });
 }
 
 /**
- * @description: 授权登录(手机验证码登录)
+ * @description: 手机号登录
  */
-export function smsLoginApi(params: ISmsLoginReqParams) {
-  return defHttp.request<ISmsLoginResultModel>({
-    url: "/telAuth",
+export function phoneLoginApi(params: IPhoneLoginReqParams) {
+  return defHttp.request<IPhoneLoginResultModel>({
+    url: "/user/login/phone",
+    method: "POST",
+    params,
+  });
+}
+/**
+ * @description: 微博授权登录
+ */
+export function weiboLoginApi(params: IWeiboLoginReqParams) {
+  return defHttp.request<IWeiboLoginResultModel>({
+    url: "/user/login/weibo",
+    method: "POST",
+    params,
+  });
+}
+/**
+ * @description: 微信授权登录
+ */
+export function weixinLoginApi(params: IWeixinLoginReqParams) {
+  return defHttp.request<IWeixinLoginResultModel>({
+    url: "/user/login/weixin",
     method: "POST",
     params,
   });
@@ -33,7 +58,7 @@ export function smsLoginApi(params: ISmsLoginReqParams) {
  * @description: 获取生成第三方code的链接 (weixin,weibo) OAuth2鉴权
  */
 export function generateCodeUrl(params: any) {
-  return defHttp.request<any>({
+  return defHttp.request({
     url: "/auth/generateCodeUrl",
     method: "GET",
     params,

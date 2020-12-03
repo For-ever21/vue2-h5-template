@@ -34,10 +34,25 @@ export enum LoginTypeEnum {
 
 /**
  * @description: 登录设备 枚举
+ * pc-网站,android-Android客户端,ios-IOS客户端，h5-h5环境
  */
 export enum DeviceEnum {
   PC = "pc",
   H5 = "h5",
   ANDROID = "android",
-  IOS = "iphone",
+  IOS = "ios",
+}
+
+/**
+ * @description: 微信授权类型 枚举
+ * weixin_app-移动应用
+ * weixin_web-网站应用，
+ * weixin_account-公众号，
+ * weixin_applets-小程序
+ */
+export enum WeixinTypeEnum {
+  APP = "weixin_app", // 移动应用
+  WEB = "weixin_web", // 网站应用
+  ACCOUNT = "weixin_account", // 公众号
+  APPLETS = "weixin_applets", // 小程序
 }

@@ -47,19 +47,19 @@
     }
 
     private created() {
-      this.handleFocusOut();
-      this.handleResize();
+      // this.handleFocusOut();
+      // this.handleResize();
     }
   }
 </script>
 <style lang="less">
   @import "~@styles/index.less";
   #app {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    // position: fixed;
+    // top: 0;
+    // bottom: 0;
+    // left: 0;
+    // right: 0;
     height: 100%;
     font-size: 14px;
   }

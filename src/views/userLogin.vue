@@ -53,8 +53,10 @@
       <div class="tip">未注册手机号验证后将自动注册新账号</div>
     </div>
     <div class="demo">
-      <div v-if="platform === 'weixin'" class="btn" @click="handleWxLogin">微信授权登录</div>
-      <div v-if="platform === 'weibo'" class="btn" @click="handleWeiboLogin">微博授权</div>
+      <div v-if="platform === 'weixin'" class="btn" @click="handleWxLogin">微信授权登录-new</div>
+      <div v-if="platform === 'weibo'" class="btn" @click="handleWeiboLogin">微博授权-new</div>
+      <div v-if="platform === 'weixin'" class="btn" @click="handleWxLogin2">微信授权登录-old</div>
+      <div v-if="platform === 'weibo'" class="btn" @click="handleWeiboLogin2">微博授权-old</div>
     </div>
     <footer class="footer h5">
       <!-- App端 第三方登录 -->
@@ -82,9 +84,22 @@
 
 <script lang="ts">
   import { Vue, Component, Watch } from "vue-property-decorator";
-  import { getSmsCode, smsLoginApi, generateCodeUrl } from "@/api/user";
 
-  import { UserTypeEnum, LoginSourceEnum, DeviceEnum, LoginTypeEnum } from "@/enums/businessEnum";
+  import {
+    getSmsCode,
+    generateCodeUrl,
+    phoneLoginApi,
+    weiboLoginApi,
+    weixinLoginApi,
+  } from "@/api/user";
+
+  import {
+    UserTypeEnum,
+    LoginSourceEnum,
+    DeviceEnum,
+    // LoginTypeEnum,
+    WeixinTypeEnum,
+  } from "@/enums/businessEnum";
 
   import { isValidMobileS } from "@/utils/validateUtil";
 
@@ -98,8 +113,10 @@
   export default class UserLogin extends Vue {
     private checkedPolicy = false; // 是否勾选协议
     private isShowAd = true; // 是否展示 广告位
-    private device = window.$device; // 设备
-    private platform = window.$platform; // 平台
+    private device: string = window.$device; // 设备
+    private platform: string = window.$platform; // 平台
+    private weiboResult: any = {}; // 微博授权返回的信息
+    private weixinResult: any = {}; // 微信授权返回的信息
     private loginForm = {
       // 登录表单
       phone: "",
@@ -118,34 +135,92 @@
     private styleVar = {
       "--space": "60px",
     };
+    get code() {
+      return (this as any).$route.query.code;
+    }
+    get state() {
+      return (this as any).$route.query.state;
+    }
+    get redirect_uri() {
+      return (this as any).$route.query.redirect_uri;
+    }
+
     @Watch("loginForm", { deep: true })
     private onInputChange() {
       // 监听手机号，验证码输入
-      console.log(this.loginForm.phone);
       if (isValidMobileS(this.loginForm.phone) && this.loginForm.sms.length === 6) {
         this.formState.disabled = false;
       } else {
         this.formState.disabled = true;
       }
     }
-    private handleCheckPolicy() {
+    public created() {
+      // 判断是否有登录态
+      const hasToken = false;
+      if (hasToken) {
+        // 有 token 返回原来地址
+        this.$router.go(-1);
+      }
+      this.thirdAuth();
+    }
+    private thirdAuth() {
+      console.log("platform", this.platform);
+      if (this.platform === "weixin" && this.code) {
+        // 回调页面获取 code，进行微信授权登录 后台调接口
+        const params = {
+          code: this.code,
+          weixinType: WeixinTypeEnum.WEB,
+        };
+        weixinLoginApi(params).then((res) => {
+          if (res && res.token) {
+            this.weixinResult = res;
+            localStorage.setItem("aiwen_user_token", res.token);
+            sessionStorage.setItem("aiwen_user_userinfo", res.nickName);
+            window.location.href = this.redirect_uri;
+          } else {
+            // 展示手机号登录页面
+            Toast("进行手机号登录操作");
+          }
+        });
+      } else if (this.platform === "weibo" && this.code) {
+        // 回调页面获取 code，进行微博授权登录 后台调接口
+        const params = {
+          code: this.code,
+        };
+        weiboLoginApi(params).then((res) => {
+          if (res && res.token) {
+            // 有返回 token 证明已经绑定手机号，返回原页面
+            this.weiboResult = res;
+            localStorage.setItem("aiwen_user_token", res.token);
+            sessionStorage.setItem("aiwen_user_userinfo", res.nickName);
+            window.location.href = this.redirect_uri;
+          } else {
+            // 展示手机号登录页面
+            Toast("进行手机号登录操作");
+          }
+        });
+      }
+    }
+    public handleCheckPolicy() {
       this.checkedPolicy = !this.checkedPolicy;
     }
-    private handleFocus() {
+    public handleFocus() {
       this.styleVar["--space"] = "40px";
     }
-    private handleBlur() {
+    public handleBlur() {
       this.styleVar["--space"] = "60px";
     }
-    // 微信授权登录
-    private handleWxLogin() {
-      // //appID
+    // 微信授权登录 new
+    public handleWxLogin() {
+      // appID
       let appID = `wx9d5ab02fea68ed0a`;
-      //appsecret
+      // appsecret
       // let appSerect = `f464746a86b3863ce9b820a40e2aac8a`;
       //点击授权后重定向url地址
-      let redirectUrl = `/aiwen/login/`;
-      let host = `https://for-ever21.github.io`;
+      // /aiwen/login/
+      let redirectUrl = `/aiwen/`;
+      // https://for-ever21.github.io
+      let host = `http://127.0.0.1:8080`;
       //微信授权api,接口返回code,点击授权后跳转到重定向地址并带上code参数
       let authorizeUrl =
         `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appID}&redirect_uri=` +
@@ -154,7 +229,34 @@
 
       window.location.href = authorizeUrl;
     }
-    private generateCode(providerType: string) {
+    // 微信授权登录 old
+    public handleWxLogin2() {
+      this.generateCode("weixin");
+    }
+    // 微博 授权登录 new
+    public handleWeiboLogin() {
+      // clientId
+      let clientId = `1595087667`; // 申请应用时分配的AppKey。
+      // appsecret
+      // let appSerect = `f464746a86b3863ce9b820a40e2aac8a`;
+      //点击授权后重定向url地址
+      let redirectUrl = `/aiwen/`;
+      let host = `http://10.220.200.17:8080`;
+      // 开发者可以用这个参数验证请求有效性，也可以记录用户请求授权页前的位置
+      let state = "STATE";
+      //微信授权api,接口返回code,点击授权后跳转到重定向地址并带上code参数
+      let authorizeUrl =
+        `https://api.weibo.com/oauth2/authorize?client_id=${clientId}&redirect_uri=` +
+        `${host}${redirectUrl}&response_type=code&display=mobile&state=` +
+        `${state}`;
+
+      window.location.href = authorizeUrl;
+    }
+    // 微博 授权登录 old
+    public handleWeiboLogin2() {
+      this.generateCode("weibo");
+    }
+    public generateCode(providerType: string) {
       const params = {
         providerType: providerType,
         userType: UserTypeEnum.USER,
@@ -169,13 +271,8 @@
         window.location.href = res;
       });
     }
-    // 微博 授权登录
-    private handleWeiboLogin() {
-      console.log("handleAppWeiboLogin");
-      this.generateCode("weixin");
-    }
     // 获取验证码
-    private async handleGetSmsCode() {
+    public async handleGetSmsCode() {
       if (this.sms.disabled) {
         return false;
       }
@@ -192,7 +289,7 @@
       try {
         const params = {
           phone: this.loginForm.phone,
-          userType: UserTypeEnum.USER,
+          userCode: UserTypeEnum.USER,
         };
         await getSmsCode(params);
         this.sms.disabled = true;
@@ -220,7 +317,7 @@
       }
     }
     // 登录操作
-    private async handleLogin() {
+    public async handleLogin() {
       if (this.formState.loading) {
         return false;
       }
@@ -242,15 +339,24 @@
       }
       try {
         this.formState.loading = true;
-        const params = {
-          tel: this.loginForm.phone,
+        const params: any = {
+          phone: this.loginForm.phone,
           checkNum: this.loginForm.sms,
           loginSource: LoginSourceEnum.PATIENT,
-          loginType: LoginTypeEnum.APP,
           source: DeviceEnum.H5,
-          userType: UserTypeEnum.USER,
+          // loginType: LoginTypeEnum.APP,
+          // userType: UserTypeEnum.USER,
         };
-        const data = await smsLoginApi(params);
+        if (this.weiboResult.registered) {
+          params.weiBoRegistered = true;
+          params.weiboUid = this.weiboResult.weiboUid;
+        }
+        if (this.weixinResult.registered) {
+          params.weiXinRegistered = true;
+          params.weixinType = WeixinTypeEnum.WEB;
+          params.unionId = this.weixinResult.unionId;
+        }
+        const data = await phoneLoginApi(params);
         this.formState.loading = false;
         console.log("data", data);
       } catch (err) {
@@ -259,13 +365,13 @@
       }
     }
     // 跳转下载APP页，或者唤醒APP
-    private handleDownloadApp() {
+    public handleDownloadApp() {
       console.log("handleDownloadApp");
     }
     // 关闭广告栏
-    private handleCloseAd() {
+    public handleCloseAd() {
       console.log("handleCloseAd");
-      (this.isShowAd as any).value = false;
+      this.isShowAd = false;
     }
   }
 </script>
@@ -320,6 +426,10 @@
             font-weight: 400;
             color: #333333;
             caret-color: #664ae1;
+            resize: none;
+            &:focus {
+              outline: none;
+            }
           }
           .field_btn {
             font-weight: 400;

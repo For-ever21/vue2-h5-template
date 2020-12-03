@@ -163,7 +163,7 @@ module.exports = {
     proxy: {
       "/api": {
         target:
-          "http://10.200.0.3:51003", // 目标代理接口地址
+          "http://10.200.0.3:59014", // 目标代理接口地址
         secure: false,
         changeOrigin: true, // 开启代理，在本地创建一个虚拟服务端
         // ws: true, // 是否启用 websocket
